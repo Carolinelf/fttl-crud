@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Description of BookingDao
  *
@@ -9,13 +8,10 @@ class BookingDao {
     
     /** @var PDO */
     private $db = null;
-
-
     public function __destruct() {
         // close db connection
         $this->db = null;
     }
-
     /**
      * Find all {@link Booking}s by search criteria.
      * @return array array of {@link Booking}s
@@ -29,54 +25,48 @@ class BookingDao {
         }
         return $result;
     }
-
     /**
      * Find {@link Todo} by identifier.
      * @return Todo Todo or <i>null</i> if not found
      */
-//    public function findById($id) {
-//        $row = $this->query('SELECT * FROM todo WHERE deleted = 0 and id = ' . (int) $id)->fetch();
-//        if (!$row) {
-//            return null;
-//        }
-//        $todo = new Todo();
-//        TodoMapper::map($todo, $row);
-//        return $todo;
-//    }
-
+    public function findById($id) {
+        $row = $this->query('SELECT * FROM bookings WHERE status != "deleted" and id = ' . (int) $id)->fetch();
+        if (!$row) {
+            return null;
+        }
+        $booking = new Booking();
+        BookingMapper::map($booking, $row);
+        return $booking;
+    }
     /**
-     * Save {@link Todo}.
-     * @param ToDo $todo {@link Todo} to be saved
-     * @return Todo saved {@link Todo} instance
+     * Save {@link Booking}.
+     * @param Booking $booking {@link Booking} to be saved
+     * @return Booking saved {@link Booking} instance
      */
-//    public function save(ToDo $todo) {
-//        if ($todo->getId() === null) {
-//            return $this->insert($todo);
-//        }
-//        return $this->update($todo);
-//    }
-
+    public function save(Booking $booking) {
+        if ($booking->getId() === null) {
+            return $this->insert($booking);
+        }
+        return $this->update($booking);
+    }
     /**
-     * Delete {@link Todo} by identifier.
-     * @param int $id {@link Todo} identifier
+     * Delete {@link Booking} by identifier.
+     * @param int $id {@link Booking} identifier
      * @return bool <i>true</i> on success, <i>false</i> otherwise
      */
     public function delete($id) {
         $sql = '
-            UPDATE todo SET
-                last_modified_on = :last_modified_on,
-                deleted = :deleted
+            UPDATE bookings SET
+                status = :status
             WHERE
                 id = :id';
         $statement = $this->getDb()->prepare($sql);
         $this->executeStatement($statement, array(
-            ':last_modified_on' => self::formatDateTime(new DateTime()),
-            ':deleted' => true,
+            ':status' => 'deleted',
             ':id' => $id,
         ));
         return $statement->rowCount() == 1;
     }
-
     /**
      * @return PDO
      */
@@ -92,7 +82,6 @@ class BookingDao {
         }
         return $this->db;
     }
-
 //    private function getFindSql(TodoSearchCriteria $search = null) {
 //        $sql = 'SELECT * FROM todo WHERE deleted = 0 ';
 //        $orderBy = ' priority, due_on';
@@ -115,86 +104,68 @@ class BookingDao {
 //        $sql .= ' ORDER BY ' . $orderBy;
 //        return $sql;
 //    }
-
+    /**
+     * @return Booking
+     * @throws Exception
+     */
+    private function insert(Booking $booking) {
+        $now = new DateTime();
+        $booking->setId(null);
+        $booking->setStatus('pending');
+        $sql = '
+            INSERT INTO bookings (id, flight_name, flight_date, status, user_id)
+                VALUES (:id, :flight_name, :flight_date, :status, :user_id)';
+        return $this->execute($sql, $booking);
+    }
     /**
      * @return Todo
      * @throws Exception
      */
-//    private function insert(Todo $todo) {
-//        $now = new DateTime();
-//        $todo->setId(null);
-//        $todo->setCreatedOn($now);
-//        $todo->setLastModifiedOn($now);
-//        $todo->setStatus(Todo::STATUS_PENDING);
-//        $sql = '
-//            INSERT INTO todo (id, priority, created_on, last_modified_on, due_on, title, description, comment, status, deleted)
-//                VALUES (:id, :priority, :created_on, :last_modified_on, :due_on, :title, :description, :comment, :status, :deleted)';
-//        return $this->execute($sql, $todo);
-//    }
+    private function update(Booking $booking) {
+        
 
+    
+      
+        $sql = '
+            UPDATE bookings SET
+              flight_name = :flight_name,
+               flight_date = :flight_date,
+               status = :status,
+               user_id = :user_id
+            WHERE
+                id = :id';
+        return $this->execute($sql,$booking);
+  }
     /**
-     * @return Todo
+     * @return Booking
      * @throws Exception
      */
-//    private function update(Todo $todo) {
-//        $todo->setLastModifiedOn(new DateTime());
-//        $sql = '
-//            UPDATE todo SET
-//                priority = :priority,
-//                last_modified_on = :last_modified_on,
-//                due_on = :due_on,
-//                title = :title,
-//                description = :description,
-//                comment = :comment,
-//                status = :status,
-//                deleted = :deleted
-//            WHERE
-//                id = :id';
-//        return $this->execute($sql, $todo);
-//    }
-
-    /**
-     * @return Todo
-     * @throws Exception
-     */
-//    private function execute($sql, Todo $todo) {
-//        $statement = $this->getDb()->prepare($sql);
-//        $this->executeStatement($statement, $this->getParams($todo));
-//        if (!$todo->getId()) {
-//            return $this->findById($this->getDb()->lastInsertId());
-//        }
-//        if (!$statement->rowCount()) {
-//            throw new NotFoundException('TODO with ID "' . $todo->getId() . '" does not exist.');
-//        }
-//        return $todo;
-//    }
-
-//    private function getParams(Todo $todo) {
-//        $params = array(
-//            ':id' => $todo->getId(),
-//            ':priority' => $todo->getPriority(),
-//            ':created_on' => self::formatDateTime($todo->getCreatedOn()),
-//            ':last_modified_on' => self::formatDateTime($todo->getLastModifiedOn()),
-//            ':due_on' => self::formatDateTime($todo->getDueOn()),
-//            ':title' => $todo->getTitle(),
-//            ':description' => $todo->getDescription(),
-//            ':comment' => $todo->getComment(),
-//            ':status' => $todo->getStatus(),
-//            ':deleted' => $todo->getDeleted(),
-//        );
-//        if ($todo->getId()) {
-//            // unset created date, this one is never updated
-//            unset($params[':created_on']);
-//        }
-//        return $params;
-//    }
-
+    private function execute($sql, Booking $booking) {
+        $statement = $this->getDb()->prepare($sql);
+        $this->executeStatement($statement, $this->getParams($booking));
+        if (!$booking->getId()) {
+            return $this->findById($this->getDb()->lastInsertId());
+        }
+        
+        return $booking;
+    }
+    private function getParams(Booking $booking) {
+        //:id,:flight_name, :flight_date, :date_created, :status, :user_id
+        $params = array(
+            ':id' => $booking->getId(),
+            ':flight_name' => $booking->getFlightName(),
+            ':flight_date' => self::formatDateTime($booking->getFlightDate()),
+            ':status' => $booking->getStatus(),
+            ':user_id' => $booking->getUserId()
+        );
+       
+        return $params;
+    }
     private function executeStatement(PDOStatement $statement, array $params) {
         if (!$statement->execute($params)) {
             self::throwDbError($this->getDb()->errorInfo());
         }
     }
-
     /**
      * @return PDOStatement
      */
@@ -205,12 +176,10 @@ class BookingDao {
         }
         return $statement;
     }
-
     private static function throwDbError(array $errorInfo) {
         // TODO log error, send email, etc.
         throw new Exception('DB error [' . $errorInfo[0] . ', ' . $errorInfo[1] . ']: ' . $errorInfo[2]);
     }
-
     private static function formatDateTime(DateTime $date) {
         return $date->format(DateTime::ISO8601);
     }

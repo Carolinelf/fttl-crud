@@ -40,15 +40,12 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-
 /**
  * Miscellaneous utility methods.
  */
 final class Utils {
-
     private function __construct() {
     }
-
     /**
      * Generate link.
      * @param string $page target page
@@ -59,7 +56,6 @@ final class Utils {
         // TODO add support for Apache's module rewrite
         return 'index.php?' .http_build_query($params);
     }
-
     /**
      * Format date.
      * @param DateTime $date date to be formatted
@@ -71,7 +67,6 @@ final class Utils {
         }
         return $date->format('m/d/Y');
     }
-
     /**
      * Format date and time.
      * @param DateTime $date date to be formatted
@@ -83,7 +78,6 @@ final class Utils {
         }
         return $date->format('m/d/Y H:i');
     }
-
     /**
      * Redirect to the given page.
      * @param type $page target page
@@ -93,7 +87,6 @@ final class Utils {
         header('Location: ' . self::createLink($page, $params));
         die();
     }
-
     /**
      * Get value of the URL param.
      * @return string parameter value
@@ -105,13 +98,12 @@ final class Utils {
         }
         return $_GET[$name];
     }
-
     /**
-     * Get {@link Todo} by the identifier 'id' found in the URL.
-     * @return Booking {@link Todo} instance
-     * @throws NotFoundException if the param or {@link Todo} instance is not found
+     * Get object by the identifier 'id' found in the URL.
+     * @return Object
+     * @throws NotFoundException if the param or object is not found
      */
-    public static function getTodoByGetId() {
+    public static function getObjByGetId($dao) {
         $id = null;
         try {
             $id = self::getUrlParam('id');
@@ -121,14 +113,12 @@ final class Utils {
         if (!is_numeric($id)) {
             throw new NotFoundException('Invalid TODO identifier provided.');
         }
-        $dao = new TodoDao();
-        $todo = $dao->findById($id);
-        if ($todo === null) {
+        $obj = $dao->findById($id);
+        if ($obj === null) {
             throw new NotFoundException('Unknown TODO identifier provided.');
         }
-        return $todo;
+        return $obj;
     }
-
     /**
      * Capitalize the first letter of the given string
      * @param string $string string to be capitalized
@@ -137,7 +127,6 @@ final class Utils {
     public static function capitalize($string) {
         return ucfirst(mb_strtolower($string));
     }
-
     /**
      * Escape the given string
      * @param string $string string to be escaped
@@ -146,5 +135,4 @@ final class Utils {
     public static function escape($string) {
         return htmlspecialchars($string, ENT_QUOTES);
     }
-
 }

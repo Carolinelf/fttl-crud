@@ -10,6 +10,7 @@ class Booking {
     private $flightName;
     private $flightDate;
     private $dateCreated;
+    private $status;
     private $userId;
     
     function getId() {
@@ -34,6 +35,14 @@ class Booking {
 
     function setId($id) {
         $this->id = $id;
+    }
+    
+       function getStatus() {
+        return $this->status;
+    }
+
+    function setStatus($status) {
+        $this->status = $status;
     }
 
     function setFlightName($flightName) {
